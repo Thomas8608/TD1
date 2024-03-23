@@ -1,0 +1,101 @@
+import math
+
+#EXERCICE 1 & 2
+class Fraction():
+    def __init__(self,a,b):
+        assert b != 0  #on évite la division par 0
+        self.num = a
+        self.den = b
+        self.flottant = a/b
+        self.value = f"{a} / {b}" #on affiche ainsi a sur b
+    def add(self, F):
+        self.num = self.num* F.den + self.den* F.num
+        self.den = self.den * F.den
+        self.value = f"{self.num} / {self.den}"
+    def multiply(self, F):
+        self.num = self.num * F.num
+        self.den = self.den * F.den
+        self.value = f"{self.num} / {self.den}"
+    def simplify(self):
+        cd = math.gcd(self.num, self.den) #on prend le plus grand diviseur commun
+        self.num = self.num // cd
+        self.den = self.den // cd
+        self.value = f"{self.num} / {self.den}"
+    def flot(self):
+        self.flottant = self.num /self.den
+
+
+if __name__ == '__main__': 
+    c = Fraction(3, 5) #on teste avec 3 sur 5
+    d = Fraction(5, 5)
+    c.multiply(d)
+    c.simplify()
+    print(c.value) #on affiche la VALEUR de c 
+
+H = Fraction(0,1)
+for i in range(1,10): #On ne peut pas prendre n trop grand car cette série diverge rapidement (les fractions ne se simplifiant pas on dépasse rapidement les 4300 chiffres)
+    H.add(Fraction(1, i))
+    H.simplify()
+
+
+L = Fraction(0,1)
+for i in range(1000):
+    L.add(Fraction((-1)**i, 2* i +1 ))
+    L.simplify()
+L.flot() #met a jour la valeur du flottant
+print(H.value) 
+print(L.flottant) #l'affiche
+
+
+class Polynome():
+    def __init__(self, l):
+        self.coef = l
+        self.str = ''
+    def __str__(self):
+        if self.coef[0] != 0 and self.coef[1] != 0 and self.coef[1] != 1:
+            res = f'{self.coef[1]} * X + {self.coef[0]}'
+        if self.coef[0] == 0 and self.coef[1] != 0 and self.coef[1] != 1:
+            res = f'{self.coef[1]} * X'
+        if self.coef[1] == 0 or self.coef[1] == 1:
+            if self.coef[0] != 0:
+                res = f'{self.coef[0]}'
+            else:
+                res = f''
+        for i in range(2, len(self.coef)):
+            if self.coef[i] != 1 and self.coef[i] != 0 :
+                res =  f'{self.coef[i]}* X**{i} +' + res
+            elif self.coef[i] == 1:
+                res = f'X**{i} +' + res
+        if res[-1] == '+':
+            res = res[:-1]
+        p.str = res
+    def add(self, P):
+        coefficient= []
+        for i in range(min(len(self.coef),len(P.coef))):
+            coefficient.append(self.coef[i] + P.coef[i])
+        if len(self.coef) > len(P.coef):
+            for j in range(len(P.coef),len(self.coef)):
+                coefficient.append(self.coef[j])
+        else:
+            for k in range(len(self.coef),len(P.coef)):
+                coefficient.append(P.coef[i])
+        self.coef = coefficient
+    def deriv(self):
+        res = []
+        for i in range(1,len(self.coef)):
+            res.append(self.coef[i]* i)
+        self.coef = res
+            
+        
+                       
+
+
+
+if __name__ == '__main__':
+    p= Polynome([0,0,1,5,9])
+    q= Polynome([1,5,6,9])
+    p.deriv()
+    p.__str__()
+    print(p.str)
+
+    
