@@ -7,22 +7,22 @@ import unittest
 
 class Tree:
     def __init__(self, label, *children):
-        self.gosse = children #tuple
-        self.name = label
+        self.__gosse = children #tuple
+        self.__name = label
     def label(self):
-        return self.name
+        return self.__name
     def children(self):
-        return self.gosse #tuple et non pas arbre
+        return self.__gosse #tuple et non pas arbre
     def nb_children(self):
-        return len(self.gosse)
+        return len(self.__gosse)
     def is_leaf(self):
-        if len(self.gosse)==0:
+        if len(self.__gosse)==0:
             return True
         return False
     def child(self, i:int):
-        if len(self.gosse)>i:
-            return self.gosse[i]
-        return
+        if len(self.__gosse)>i:
+            return self.__gosse[i]
+        return None
     def depth(self):
         if self.is_leaf():  #Cas d'arrêt
             return 0
