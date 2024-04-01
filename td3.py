@@ -49,60 +49,7 @@ class Tree:
         if self.__str__() == __value.__str__():
             return True
         return False
-    def deriv(self, var: str):
-        # On part du principe que on peut n'avoir que des produits à l'avant dernière ligne (on linéarise l'expression) TOUT ARBRE EST ALORS DE PROFONDEUR 3 (sauf polynome constant) avec un '+' ligne 1,
-        #puis des signes produits à la ligne 2 et des constantes / signe produit pour la puissance de X à la ligne 3 (par exemple : 3X^2 + 4X + 2 == (3 * (X * X)) + (4*X) + (2) ) et des X à la ligne 4
-        #on )
-        #On veut ainsi une écriture du type +(*(c1),  *(c2,X), *(c3,*(X,X))) pour un polynome de la forme c1 + c2 X + c3 X**2
-        #J'ai conscience que cela rajoute beaucoup de conditions, j'ai eu du mal à trouver comment bien écrire le polynome et je pense qu'il y a une méthode plus efficace
-        #Car ce que ma fonction return est assez pesant, mais techniquement le calcul fonctionne malgré toutes les contraintes
-        n = self.nb_children()
-        L = []
-        M = []
-        for i in range(n):
-            t = self.child(i)
-            #Alors d'après mon écriture, il y a deux children (un * qui a la puissance de X children (qui sont tous des X) et une constante)
-            if t.child(0) != '*':#alors c'est la constante en child(0)
-                t2 = t.child(1)
-                c = t.child(0)
-                k = t2.nb_children() #la puissance de t2
-                if k == 0: #Cas de X puissance 0
-                    M = ['*', 0]
-                elif k == 1:
-                    print(c)
-                    M = [ '*', f'{c}' ]
-
-                else:
-                    M = ['*', f'{c}*{k}'] #On multiplie par k la constante
-                    N = []
-                    for i in range(k-1):
-                        N.append(var) #On ajoute X k-1 fois
-                    M.append(N)
-            else: #la puissance de X en child(0)
-                t2 = t.child(0)
-                c = t.child(1)
-                k = t2.nb_children() #la puissance de t2
-                if k == 0: #Cas de X puissance 0
-                    M = ['*', 0]
-                elif k == 1:
-                    M = [ '*', f'{c}' ]
-
-                else:
-                    M = ['*', f'{c}*{k}'] #On multiplie par k la constante
-                    N = []
-                    for i in range(k-1):
-                        N.append(var) #On ajoute X k-1 fois
-                    M.append(N)
-            print(M)
-            L.append(M)
-
-
-        return Tree('+', L)
-
-
-
-
-
+    
 class TestTree(unittest.TestCase):
 
     def test_label(self):
@@ -124,18 +71,10 @@ class TestTree(unittest.TestCase):
         self.assertEqual(t.child(1), 'k')
         self.assertEqual(t.child(0), 'g')
 
-
-
-
-
-
 if __name__ == '__main__':
     t1 = Tree('f', Tree('2',Tree('4')), Tree('3'))
     t2 = Tree('f', Tree('2',Tree('4')), Tree('3'))
     t3 = Tree('f', Tree('2',Tree('6')), Tree('3'))
-    tPoly = Tree('+', Tree('*', Tree('5'),Tree('*', 'X', 'X')), Tree('*',Tree('a'),Tree('*','X'))) #Ceci est le polynome 5X^2 + aX
-    tPoly2 = Tree('+', Tree('*', Tree('5'),Tree('*', 'X', 'X')), Tree('*',Tree('a'),Tree('*'))) #Ceci est le polynome 5X^2 + a
-    tPoly3 = Tree('+', Tree('*', Tree('1'),Tree('*', 'X', 'X','X','X')), Tree('*',Tree('a'),Tree('*','X','X'))) #Ceci est le polynome X^4 + aX^2
     #print(t1.label())
     #print(t1.children())
     #print(t1.nb_children())
@@ -144,9 +83,6 @@ if __name__ == '__main__':
     #print(t1.depth())
     print(t1 == t2)
     print(t1 == t3)
-    print(tPoly.deriv('X'))
-    print(tPoly2.deriv('X'))
-    print(tPoly3.deriv('X'))
     unittest.main()
 
 
