@@ -6,109 +6,63 @@ Created on Wed May 15 09:54:58 2024
 """
 
 from tkinter import *
-from random import randint
-from random import random
 import numpy as np
-
-
-l0 = 1
-k = 1
-tau = 0.1
+from math import sqrt
+from random import randint, random
 
 root = Tk()
-
 content = Frame(root)
-
-
-w = 400
+w = 700
 h = 400
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+x = (screen_width - w) // 2 
+y = (screen_height - h) // 2
+root.title("Graphes")
+root.geometry(f"{w}x{h}+{x}+{y}")
+root.resizable(width=False, height=False)
 
-can = Canvas(content,width = w,height = h, bg ='white')
-content.grid(row = 0, column = 0)
-can.grid(row = 0, column = 0)
-root.title("Graphe")
-
-graph = [[2, 7, 3], [3, 4, 9, 10], [5, 8, 0], [10, 1, 4, 6, 0], 
-[3, 1, 6], [2], [3, 10, 4], [0], [2], [10, 1], [3, 1, 6, 9]]
-
-
-pos = np.array([(randint(0,w),randint(0,h))
-       for i in range(len(graph))])
-
-
-
-def draw(can, graph, pos):
-    for i in range(len(graph)):
-        for j in graph[i]:  # sucs de i a j
-            can.create_line(pos[i][0], pos[i][1], pos[j][0], pos[j][1])
-    for i in range(len(pos)):
-        x,y = pos[i][0], pos[i][1]
-        can.create_oval(x-10,y-10,x+10,y+10,fill="#f3e1d4")
-        can.create_text(x,y,text=f"{i}", font=("Times","8"),fill="black")
-        
-draw(can,graph,pos)
-
-vit = np.array([((random()-0.5)*10, (random()-0.5)*10)
-       for i in range(len(graph))])
-
-            
-def dist(graph,pos):
-    distance = []
-    for i in range(len(graph)):
-        L1 = []
-        for j in graph[i]:
-            m = (pos[j][1] - pos[i][1])**2 + (pos[j][0] - pos[i][0])**2
-            L1.append(np.sqrt(m))
-        distance.append(L1)
-    return distance
-
-def force(distance,graph,pos):
-    F = []
-    for i in range(len(graph)):
-        L1 = []
-        for j in graph[i]:
-            f = - k *(distance[i][j] - l0)
-            L1.append(f)
-        F.append(L1)
-    return F
+class Graph:
+    def __init__(self, list_adjacence: list, n: int):
+        self.__tau = 0.1
+        self.__k = 1
+        self.__r0 = 100
+        self.__nb_vertex = n 
+        self.__list_adjacence = list(list_adjacence)
+        self.__pos = np.array([[w // 2 + randint(-100, 100), h // 2 + randint(-100, 100)] for _ in range(self.__nb_vertex)])
+        self.__vit = np.array([[(random() - 0.5) * 10, (random() - 0.5) * 10] for _ in range(self.__nb_vertex)])
     
-distance = dist(graph,pos)
-F = force(distance,graph,pos)
-def ressort():
-    global pos  # Ajouter cette ligne pour accéder à la variable pos globale
-    for i in range(len(graph)):
-        for j in graph[i]:
-            vit[i][j] += tau * F[i][j]
-            pos[i][j] += tau * vit[i][j]
-    draw(can, graph, pos)  # Mettre à jour le dessin du graphe après chaque itération
-    root.after(100, ressort)  # Appeler ressort() de façon récurrente après 100 millisecondes
+    def draw(self):
+        can.create_rectangle(0, 0, w, h, fill="white")
+        for i in range(self.__nb_vertex):
+            for j in self.__list_adjacence[i]: 
+                can.create_line(self.__pos[i][0], self.__pos[i][1], self.__pos[j][0], self.__pos[j][1])
+        for k in range(self.__nb_vertex):
+            can.create_oval(self.__pos[k][0] - 8, self.__pos[k][1] - 8, self.__pos[k][0] + 8, self.__pos[k][1] + 8, fill="#f3e1d4")
+            can.create_text(self.__pos[k][0], self.__pos[k][1], text=f"{k}", font=("Times", 10, "bold"), fill="black")
 
-        
-        
+    def ressort(self, event=None):
+        forces = np.zeros_like(self.__pos)
+        for i in range(self.__nb_vertex):
+            for j in self.__list_adjacence[i]:
+                if i != j:
+                    delta = self.__pos[i] - self.__pos[j]
+                    r = np.linalg.norm(delta)
+                    if r > 0:
+                        f = self.__k * (r - self.__r0) * (delta / r)
+                        forces[i] -= f
+                        forces[j] += f
+        self.__vit += forces * self.__tau
+        self.__pos += self.__vit * self.__tau
+        self.draw()
 
+g1 = [[2, 7, 3], [3, 4, 9, 10], [5, 8, 0], [10, 1, 4, 6, 0], 
+      [3, 1, 6], [2], [3, 10, 4], [0], [2], [10, 1], [3, 1, 6, 9]]
+g = Graph(g1, 11)
 
-            
-
-
-            
-
-
-
-
-
-
-
-
+can = Canvas(content, width=w, height=h, bg="white")
+content.grid(row=0, column=0)
+can.grid(row=0, column=0)
+g.draw()
+root.bind('<f>', g.ressort)
 root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
